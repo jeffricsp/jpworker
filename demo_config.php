@@ -1,5 +1,9 @@
 <?php
-
+/////////////////////////////////////////////
+////// Created by: Jeffric S. Pisuena //////
+////// https://jeffric.com            //////
+////// jeffric.sp@gmail.com           //////
+////////////////////////////////////////////
 $config = array(
     "host" => "localhost",
     "user" => "root",

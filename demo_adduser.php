@@ -1,4 +1,9 @@
 <?php
+/////////////////////////////////////////////
+////// Created by: Jeffric S. Pisuena //////
+////// https://jeffric.com            //////
+////// jeffric.sp@gmail.com           //////
+////////////////////////////////////////////
 require_once 'demo_config.php';
 require_once 'jpworker.php';
 

@@ -5,6 +5,8 @@
 ////// jeffric.sp@gmail.com           //////
 ////////////////////////////////////////////
 class JPWorker {
+    
+    //Add data to database dynamically
     function addData($conn, $tblName, $data) {
         //$num_col = count($data);
         $fields = array_keys($data);
@@ -36,7 +38,7 @@ class JPWorker {
                 $dt .= $this->getParamDataType($col_dt[$field]);
                 
                 $ctr++;
-                $n_data[] = $conn->real_escape_string($data[$field]);
+                $n_data[] = $this->sanitize($conn, $data[$field]);
             }
         }
         
@@ -51,7 +53,7 @@ class JPWorker {
         return $status;
     }
     
-    
+    //Add new user (will hash password)
     function addUser($conn, $tblName, $data) {
         //$num_col = count($data);
         $fields = array_keys($data);
@@ -88,7 +90,7 @@ class JPWorker {
                 
                 $dt .= $this->getParamDataType($col_dt[$field]);
                 $ctr++;
-                $n_data[] = $conn->real_escape_string($data[$field]);
+                $n_data[] = $this->sanitize($conn, $data[$field]);
             }
         }
         
@@ -109,6 +111,7 @@ class JPWorker {
         
     }
     
+    //Login function
     function login($conn, $tblName, $data) {
         $num_col = count($data);
         $fields = array_keys($data);
@@ -120,7 +123,7 @@ class JPWorker {
             foreach($fields as $field) {
                 
                 if(stristr($field,"user") || stristr($field,"uname")) {
-                    $username = $conn->real_escape_string($data[$field]);
+                    $username = $this->sanitize($conn, $data[$field]);;
                     $u_field = $field;
                 }
                 
@@ -170,13 +173,12 @@ class JPWorker {
         return $result;
     }  
     
+    //search individual data in the database
     function getData($conn, $tblName, $data) {
         //$num_col = count($data);
         $fields = array_keys($data);
         $col = "";
-        $q = "";
         $dt = "";
-        //$vals = "";
         $ctr = 0;
         $data_arr = array();
         
@@ -191,7 +193,7 @@ class JPWorker {
                 $dt .= $this->getParamDataType($col_dt[$field]);
                 $col = $field;
                 $ctr++;
-                $n_data[] = $conn->real_escape_string($data[$field]);
+                $n_data[] = $this->sanitize($conn, $data[$field]);
             }
         }
         
@@ -222,6 +224,42 @@ class JPWorker {
         return $data_arr;
     }    
     
+    function getMultipleData($conn, $tblName, $offset, $limit) {
+        
+        $col = "";
+        $dt = "";
+        $ctr = 0;
+        $data_arr = array();
+        $offset = empty($offset)?0:$offset;
+        $limit = empty($limit)?30:$limit;
+
+        $offset = $this->sanitize($conn, $offset);
+        $limit = $this->sanitize($conn, $limit);
+        
+        $sql = "SELECT * FROM $tblName LIMIT $offset,$limit";
+        $qry = $conn->prepare($sql);
+        if($qry->execute()) {
+            $meta = $qry->result_metadata();
+            while ($field = $meta->fetch_field())
+            {
+                $params[] = &$data[$field->name];
+            }
+            call_user_func_array(array($qry, 'bind_result'), $params);
+            $ctr=0;
+            while($qry->fetch()) {
+                foreach($data as $key => $val){
+                    if(!stristr($key,"password")) {
+                        $data_arr[$ctr][$key] = $val;
+                    }
+                }
+                $ctr++;
+            }
+            
+        }
+            
+        return $data_arr;
+    }     
+    
     function getParamDataType($datatype) {
         if(stristr($datatype, "int"))
             $dt = "i";
@@ -233,6 +271,13 @@ class JPWorker {
             $dt = "s";
         
         return $dt;
+    }
+    
+    function sanitize($conn, $data) {
+        $data = trim($data);
+        $data = filter_var($data, FILTER_SANITIZE_STRING);
+        $data = $conn->real_escape_string($data);
+        return $data;
     }
 
 }

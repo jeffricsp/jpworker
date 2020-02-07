@@ -1,4 +1,9 @@
 <?php
+/////////////////////////////////////////////
+////// Created by: Jeffric S. Pisuena //////
+////// https://jeffric.com            //////
+////// jeffric.sp@gmail.com           //////
+////////////////////////////////////////////
 session_start();
 
 require_once 'demo_config.php';
@@ -20,11 +25,7 @@ if(isset($_POST['uname'])) {
     <body>
         <?php
             if(isset($status)) {
-                if(is_array($status)) {
-                    foreach($status as $s) {
-                        echo "$s<br>";
-                    }
-                }
+                echo "Login Status: " . $status;
             }
         ?>
         <form method="post">
