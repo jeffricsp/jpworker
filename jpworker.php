@@ -38,7 +38,7 @@ class JPWorker {
                 $dt .= $this->getParamDataType($col_dt[$field]);
                 
                 $ctr++;
-                $n_data[] = $this->sanitize($conn, $data[$field]);
+                $n_data[] = $this->sanitize($conn, $data[$field], "");
             }
         }
         
@@ -233,8 +233,8 @@ class JPWorker {
         $offset = empty($offset)?0:$offset;
         $limit = empty($limit)?30:$limit;
 
-        $offset = $this->sanitize($conn, $offset);
-        $limit = $this->sanitize($conn, $limit);
+        $offset = $this->sanitize($conn, $offset,"int");
+        $limit = $this->sanitize($conn, $limit, "int");
         
         $sql = "SELECT * FROM $tblName LIMIT $offset,$limit";
         $qry = $conn->prepare($sql);
@@ -273,9 +273,20 @@ class JPWorker {
         return $dt;
     }
     
-    function sanitize($conn, $data) {
+    function sanitize($conn, $data, $type=NULL) {
         $data = trim($data);
-        $data = filter_var($data, FILTER_SANITIZE_STRING);
+        if(strcasecmp($type, "int")==0)
+            $filter = FILTER_SANITIZE_NUMBER_INT;
+        elseif(strcasecmp($type, "float")==0)
+            $filter = FILTER_SANITIZE_NUMBER_FLOAT;
+        elseif(strcasecmp($type, "email")==0)
+            $filter = FILTER_SANITIZE_EMAIL;
+        elseif(strcasecmp($type, "url")==0)
+            $filter = FILTER_SANITIZE_URL;
+        else
+            $filter = FILTER_SANITIZE_STRING;
+        
+        $data = filter_var($data, $filter);
         $data = $conn->real_escape_string($data);
         return $data;
     }
