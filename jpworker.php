@@ -1,20 +1,27 @@
 <?php
-/////////////////////////////////////////////
+////////////////////////////////////////////
 ////// Created by: Jeffric S. Pisuena //////
 ////// https://jeffric.com            //////
 ////// jeffric.sp@gmail.com           //////
+//////            JPWorker            //////
+////// This class was created to make //////  
+////// the basic CRUD task much more  //////
+////// easier if you are building a   //////
+////// PHP applicatin from scratch.   //////
+////// Note: This is not yet complete!////// 
+//////                                //////
 ////////////////////////////////////////////
 class JPWorker {
     
     //Add data to database dynamically
     function addData($conn, $tblName, $data) {
-        //$num_col = count($data);
         $fields = array_keys($data);
         $col = "";
         $q = "";
         $dt = "";
         $vals = "";
         $ctr = 0;
+        $tblName = $this->sanitize($conn, $tblName);
         
         $sql = "DESCRIBE $tblName";
         $result = $conn->query($sql);
@@ -27,16 +34,12 @@ class JPWorker {
                 if($ctr>0) {
                     $col .= ", $field";
                     $q .= ",?";
-                    //$vals .= ',$fields['. $field .']';
                 }
                 else {
                     $col .= "$field";
                     $q .= "?";
-                    //$vals .= '$fields['. $field .']';
                 }
-                
                 $dt .= $this->getParamDataType($col_dt[$field]);
-                
                 $ctr++;
                 $n_data[] = $this->sanitize($conn, $data[$field], "");
             }
@@ -64,7 +67,8 @@ class JPWorker {
         $ctr = 0;
         $n_data = array();
         $err = array();
-   
+        $tblName = $this->sanitize($conn, $tblName);
+        
         $sql = "DESCRIBE $tblName";
         $result = $conn->query($sql);
         while($col_data = $result->fetch_assoc()) {
@@ -80,12 +84,10 @@ class JPWorker {
                 if($ctr>0) {
                     $col .= ", $field";
                     $q .= ",?";
-                    //$vals .= ',$fields['. $field .']';
                 }
                 else {
                     $col .= "$field";
                     $q .= "?";
-                    //$vals .= '$fields['. $field .']';
                 }
                 
                 $dt .= $this->getParamDataType($col_dt[$field]);
@@ -106,9 +108,7 @@ class JPWorker {
             else 
                 $status = "Failed to add new user!";
         }
-        
-        return $status;
-        
+        return $status;  
     }
     
     //Login function
@@ -116,15 +116,16 @@ class JPWorker {
         $num_col = count($data);
         $fields = array_keys($data);
         $result = "";
-       
         $u_field = "";
         $p_field = "";
+        $tblName = $this->sanitize($conn, $tblName);
+        
         if(is_array($fields)) {
             foreach($fields as $field) {
                 
                 if(stristr($field,"user") || stristr($field,"uname")) {
                     $username = $this->sanitize($conn, $data[$field]);;
-                    $u_field = $field;
+                    $u_field = $this->sanitize($conn, $field);
                 }
                 
                 if(stristr($field,"pass") || stristr($field,"pw")) {
@@ -173,14 +174,14 @@ class JPWorker {
         return $result;
     }  
     
-    //search individual data in the database
+    //search data in the database with condition
     function getData($conn, $tblName, $data) {
-        //$num_col = count($data);
         $fields = array_keys($data);
         $col = "";
         $dt = "";
         $ctr = 0;
         $data_arr = array();
+        $tblName = $this->sanitize($conn, $tblName);
         
         $sql = "DESCRIBE $tblName";
         $result = $conn->query($sql);
@@ -232,7 +233,7 @@ class JPWorker {
         $data_arr = array();
         $offset = empty($offset)?0:$offset;
         $limit = empty($limit)?30:$limit;
-
+        $tblName = $this->sanitize($conn, $tblName);
         $offset = $this->sanitize($conn, $offset,"int");
         $limit = $this->sanitize($conn, $limit, "int");
         
@@ -258,8 +259,93 @@ class JPWorker {
         }
             
         return $data_arr;
-    }     
+    } 
     
+    //Update data to database dynamically
+    function updateData($conn, $tblName, $key, $data) {
+        //$num_col = count($data);
+        $fields = array_keys($data);
+        $col = "";
+        $q = "";
+        $dt = "";
+        $vals = "";
+        $ctr = 0;
+        $key_col = "";
+        $key_data = "";
+        $key_dt = "";
+        $tblName = $this->sanitize($conn, $tblName);
+        $key = $this->sanitize($conn, $key);
+        
+        $sql = "DESCRIBE $tblName";
+        $result = $conn->query($sql);
+        while($col_data = $result->fetch_assoc()) {
+            $col_dt[$col_data['Field']] = $col_data['Type'];
+        }
+        
+        if(is_array($fields)) {
+            foreach($fields as $field) {
+                if(strcasecmp($field, $key)==0) {
+                    $key_col = $key."=?";
+                    $key_data = $this->sanitize($conn, $data[$field]);
+                    $key_dt = $this->getParamDataType($col_dt[$field]);
+                } else {
+                    if($ctr>0) {
+                        $col .= ", $field=?";
+                    }
+                    else {
+                        $col .= "$field=?";
+                    }
+                
+                    $dt .= $this->getParamDataType($col_dt[$field]);
+                    $ctr++;
+                    $n_data[] = $this->sanitize($conn, $data[$field]);
+                }
+            }
+            $dt .= $key_dt;
+            $n_data[] = $this->sanitize($conn, $key_data);
+        }
+        
+        $sql = "UPDATE $tblName SET $col WHERE $key_col";
+        $qry = $conn->prepare($sql);
+        $qry->bind_param($dt, ...$n_data);
+
+        if($qry->execute())
+            $status = 1;
+        else
+            $status = 0;
+        return $status;
+    }
+    
+    //function to delete data in DB
+    function deleteData($conn, $tblName, $data) {
+        $col = "";
+        $dt = "";
+        $ctr = 0;
+        //$fields = array_keys($data);
+        $key = key($data);
+        $tblName = $this->sanitize($conn, $tblName);
+        $key_data = $this->sanitize($conn, $data[$key]);
+        
+        $sql = "DESCRIBE $tblName";
+        $result = $conn->query($sql);
+        while($col_data = $result->fetch_assoc()) {
+            $col_dt[$col_data['Field']] = $col_data['Type'];
+        }
+  
+        $dt = $this->getParamDataType($col_dt[$key]);
+        
+        $sql = "DELETE FROM $tblName WHERE $key=?";
+        $qry = $conn->prepare($sql);
+        $qry->bind_param($dt, $key_data);
+
+        if($qry->execute())
+            $status = 1;
+        else
+            $status = 0;
+        return $status;
+    } 
+    
+    //Get Data Type of query parameters
     function getParamDataType($datatype) {
         if(stristr($datatype, "int"))
             $dt = "i";
@@ -273,6 +359,7 @@ class JPWorker {
         return $dt;
     }
     
+    //Lets be safe, sanitize them!
     function sanitize($conn, $data, $type=NULL) {
         $data = trim($data);
         if(strcasecmp($type, "int")==0)

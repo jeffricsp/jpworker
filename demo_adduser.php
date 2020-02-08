@@ -3,6 +3,7 @@
 ////// Created by: Jeffric S. Pisuena //////
 ////// https://jeffric.com            //////
 ////// jeffric.sp@gmail.com           //////
+//////         DEMO ADD USER          //////
 ////////////////////////////////////////////
 require_once 'demo_config.php';
 require_once 'jpworker.php';
@@ -22,6 +23,7 @@ if(isset($_POST['uname'])) {
         <title>Demo Using JPWorker</title>
     </head>
     <body>
+        <a href="demo_index.php">View Users</a><br>
         <?php
             if(isset($status)) {
                 echo $status;

@@ -3,6 +3,7 @@
 ////// Created by: Jeffric S. Pisuena //////
 ////// https://jeffric.com            //////
 ////// jeffric.sp@gmail.com           //////
+//////       DEMO DISPLAY USER        //////
 ////////////////////////////////////////////
 session_start();
 
@@ -13,8 +14,8 @@ $jpworker = new JPWorker();
 
 $table_name = "jp_user";
 
-if(isset($_POST['userid'])) {
-    $result = $jpworker->getData($conn, $table_name, $_POST);
+if(isset($_GET['userid'])) {
+    $result = $jpworker->getData($conn, $table_name, $_GET);
 }
 
 ?>
@@ -24,23 +25,25 @@ if(isset($_POST['userid'])) {
         <title>Demo Using JPWorker</title>
     </head>
     <body>
+        <a href="demo_index.php">View Users</a><br>
+        <h3>
         <?php
             if(isset($result)) {
                 if(is_array($result)) {
                 
                     foreach($result as $r) {
-                        echo "$r[userid] - $r[name] : username: $r[uname]<br>";
-                        
+                        echo "User ID: $r[userid]<br>
+                              Name: $r[name]<br>
+                              Username: $r[uname]<br>
+                              Password:*********<br>
+                              Role: $r[role]<br>";
                     }
                 }
             }
         
         ?>
-        <form method="post">
-            Enter UserID:<input type="text" name="userid"><br>
-            
-            <input type="submit" value="Get User Data">
-        </form>
+            </h3>
+
     </body>
 
 </html>
