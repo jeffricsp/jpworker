@@ -8,6 +8,8 @@ Currently:
 - add user data to mysql db
 - login function 
 - search data from mysql db
+- update data 
+- delete data
 
 Limitations:
 - input names should be exactly the same as your field names or you have to create the array using your field names as index
