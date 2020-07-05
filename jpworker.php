@@ -12,6 +12,11 @@
 //////                                //////
 ////////////////////////////////////////////
 class JPWorker {
+	//Create db connection
+	function dbConn($host, $user, $pw, $db) {
+		$conn = new mysqli($host, $user, $pw, $db);
+		return $conn;
+	}
     
     //Add data to database dynamically
     function addData($conn, $tblName, $data) {
@@ -219,14 +224,11 @@ class JPWorker {
                 }
                 $ctr++;
             }
-            
-        }
-            
+        }     
         return $data_arr;
     }    
     
     function getMultipleData($conn, $tblName, $offset, $limit) {
-        
         $col = "";
         $dt = "";
         $ctr = 0;
@@ -255,13 +257,11 @@ class JPWorker {
                 }
                 $ctr++;
             }
-            
-        }
-            
+        } 
         return $data_arr;
     } 
     
-    //Update data to database dynamically
+    //Update data in database dynamically
     function updateData($conn, $tblName, $key, $data) {
         //$num_col = count($data);
         $fields = array_keys($data);
@@ -354,8 +354,7 @@ class JPWorker {
         elseif(stristr($datatype, "blob") || stristr($datatype, "binary"))
             $dt = "b";
         else 
-            $dt = "s";
-        
+            $dt = "s";    
         return $dt;
     }
     

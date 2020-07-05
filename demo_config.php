@@ -11,5 +11,6 @@ $config = array(
     "pass" => "root",
     "db"   => "demodb"
 );
-
-$conn = new mysqli($config['host'], $config['user'], $config['pass'], $config['db']);
+require_once 'jpworker.php';
+$jpworker = new JPWorker();
+$conn = $jpworker->dbConn($config['host'], $config['user'], $config['pass'], $config['db']);
