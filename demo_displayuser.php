@@ -14,7 +14,7 @@ $jpworker = new JPWorker();
 
 $table_name = "jp_user";
 
-if(isset($_GET['userid'])) {
+if(isset($_GET['rid'])) {
     $result = $jpworker->getData($conn, $table_name, $_GET);
 }
 
@@ -32,7 +32,7 @@ if(isset($_GET['userid'])) {
                 if(is_array($result)) {
                 
                     foreach($result as $r) {
-                        echo "User ID: $r[userid]<br>
+                        echo "User ID: $r[rid]<br>
                               Name: $r[name]<br>
                               Username: $r[uname]<br>
                               Password:*********<br>

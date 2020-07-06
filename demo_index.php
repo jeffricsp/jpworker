@@ -38,7 +38,7 @@ $result = $jpworker->getMultipleData($conn, $table_name, $offset, $limit);
     if(isset($result)) {
        if(is_array($result)) {
             foreach($result as $r) {
-                echo "<tr><td><a href='demo_displayuser.php?userid=$r[userid]'>$r[userid]</a></td><td>$r[name]</td><td><a href='demo_update.php?userid=$r[userid]'>Edit</a> | <a href='demo_delete.php?userid=$r[userid]' onClick='return confirm(\"Are you sure you want to delete this record?\")'>Delete</a></td></tr>";  
+                echo "<tr><td><a href='demo_displayuser.php?rid=$r[rid]'>$r[rid]</a></td><td>$r[name]</td><td><a href='demo_update.php?rid=$r[rid]'>Edit</a> | <a href='demo_delete.php?rid=$r[rid]' onClick='return confirm(\"Are you sure you want to delete this record?\")'>Delete</a></td></tr>";  
             }
         }
     } else {

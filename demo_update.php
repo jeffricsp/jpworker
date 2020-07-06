@@ -11,15 +11,15 @@ require_once 'jpworker.php';
 $jpworker = new JPWorker();
 
 $table_name = "jp_user";
-$key = "userid"; //your primary key
+$key = "rid"; //your primary key
 
 //fetch data from db
-if(isset($_GET['userid'])) {
+if(isset($_GET['rid'])) {
     $data = $jpworker->getData($conn, $table_name, $_GET);
 }
 
 //perform update
-if(isset($_POST['userid'])) {
+if(isset($_POST['rid'])) {
     $result = $jpworker->updateData($conn, $table_name, $key, $_POST);   
     //fetch updated data from db
     $data = $jpworker->getData($conn, $table_name, $_GET);      
@@ -33,7 +33,7 @@ if(isset($_POST['userid'])) {
     </head>
     <body>
         <?php
-            $userid = "";
+            $rid = "";
             $name = "";
             $uname = "";
             $role = "";
@@ -42,7 +42,7 @@ if(isset($_POST['userid'])) {
             if(isset($data)) {
                 if(is_array($data)) {
                     foreach($data as $d) {
-                        $userid = $d['userid'];
+                        $rid = $d['rid']; // index same as with column name in table
                         $name = $d['name'];
                         $uname = $d['uname'];
                         $role = $d['role'];
@@ -76,7 +76,7 @@ if(isset($_POST['userid'])) {
                 <option value="Admin" <?php echo $admin; ?>>Admin</option>
             </select><br>
             <!-- your key is userid -->
-            <input type="hidden" name="userid" value="<?php echo $userid; ?>">
+            <input type="hidden" name="rid" value="<?php echo $rid; ?>">
             <input type="submit" value="Update Data">
         </form>
     </body>

@@ -17,6 +17,22 @@ class JPWorker {
 		$conn = new mysqli($host, $user, $pw, $db);
 		return $conn;
 	}
+	
+	//BUILD THE TABLE IF NOT EXISTS
+	function mkTable($conn, $tblName, $fields) {
+		$cols = "";
+		if(is_array($fields)) {
+            foreach($fields as $field) {
+				$field = $this->sanitize($conn, $field);
+                $cols .= ", $field VARCHAR(255)"; 
+            }
+        }
+		$sql = "CREATE TABLE IF NOT EXISTS $tblName(
+					rid INT AUTO_INCREMENT PRIMARY KEY $cols
+					)  ENGINE=INNODB;";
+		$result = $conn->query($sql);
+		return $result;
+	}
     
     //Add data to database dynamically
     function addData($conn, $tblName, $data) {
@@ -27,7 +43,9 @@ class JPWorker {
         $vals = "";
         $ctr = 0;
         $tblName = $this->sanitize($conn, $tblName);
-        
+		
+		$result = $this->mkTable($conn, $tblName, $fields);
+		
         $sql = "DESCRIBE $tblName";
         $result = $conn->query($sql);
         while($col_data = $result->fetch_assoc()) {
@@ -73,6 +91,8 @@ class JPWorker {
         $n_data = array();
         $err = array();
         $tblName = $this->sanitize($conn, $tblName);
+		
+		$result = $this->mkTable($conn, $tblName, $fields);
         
         $sql = "DESCRIBE $tblName";
         $result = $conn->query($sql);

@@ -12,7 +12,7 @@ $jpworker = new JPWorker();
 
 $table_name = "jp_user";
 
-if(isset($_GET['userid'])) {
+if(isset($_GET['rid'])) {
     $status = $jpworker->deleteData($conn, $table_name, $_GET);
     if($status==1) {
         header("location: demo_index.php");
